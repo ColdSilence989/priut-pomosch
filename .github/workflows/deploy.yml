@@ -10,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Sync to Yandex Object Storage
-        uses: reproio/s3-sync-action@v0
-        with:
-          args: --acl public-read --follow-symlinks --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
-          AWS_REGION: ru-central1
-          AWS_ENDPOINT: https://storage.yandexcloud.net
-
+    - name: Sync files
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+        AWS_REGION: ru-central1
+        AWS_S3_ENDPOINT: https://storage.yandexcloud.net
