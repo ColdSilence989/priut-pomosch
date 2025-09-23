@@ -13,14 +13,71 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Sync files 
+      - name: Build project
+        run: |
+          npm ci
+          npm run build
+
+      # 1. HTML — кэш 5 минут
+      - name: Upload HTML
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: "--acl public-read --follow-symlinks --delete --exact-timestamps --size-only --exclude '.git/*' --exclude '.github/*' --exclude LICENSE --exclude README.md --exclude .gitignore --exclude .gitattributes"
+          args: --acl public-read --follow-symlinks --delete \
+                --exclude "*" --include "*.html" \
+                --cache-control "max-age=300"
         env:
-            AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
-            AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
-            AWS_REGION: ru-central1
-            AWS_S3_ENDPOINT: https://storage.yandexcloud.net
-        
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: ru-central1
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          SOURCE_DIR: dist
+
+      # 2. CSS и JS — кэш сутки
+      - name: Upload CSS and JS
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete \
+                --exclude "*" --include "*.css" --include "*.js" \
+                --cache-control "max-age=86400"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: ru-central1
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          SOURCE_DIR: dist
+
+      # 3. Картинки и видео — кэш месяц
+      - name: Upload images and videos
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete \
+                --exclude "*" --include "*.png" --include "*.jpg" --include "*.jpeg" \
+                --include "*.gif" --include "*.svg" --include "*.webp" \
+                --include "*.mp4" --include "*.webm" --include "*.ogg" \
+                --cache-control "max-age=2592000"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: ru-central1
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          SOURCE_DIR: dist
+
+      # 4. Шрифты — кэш месяц
+      - name: Upload fonts
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete \
+                --exclude "*" --include "*.woff" --include "*.woff2" \
+                --include "*.ttf" --include "*.otf" \
+                --cache-control "max-age=2592000"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: ru-central1
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          SOURCE_DIR: dist
+
