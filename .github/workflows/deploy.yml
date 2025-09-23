@@ -16,8 +16,7 @@ jobs:
       - name: Sync files 
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --acl public-read --follow-symlinks --delete --exclude ".git/*" --exclude ".github/*" --exclude "LICENSE" --exclude "README.md" 
-        env:
+          args: --acl public-read --follow-symlinks --delete --exact-timestamps --size-only --exclude ".git/*" --exclude ".github/*" --exclude "LICENSE" --exclude "README.md" --exclude "node_modules/*" --exclude ".DS_Store"
           AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
