@@ -3,7 +3,7 @@ name: Deploy to Yandex Object Storage
 on:
   push:
     branches:
-      - main   
+      - main
 
 jobs:
   deploy:
@@ -13,14 +13,89 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Yandex Object Storage
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read --delete --exclude ".git/*" --exclude ".github/*" --exclude "LICENSE" --exclude "README.md"
+      - name: Prepare dist (copy site files)
+        run: |
+          mkdir -p dist
+          # копируем весь репозиторий в dist, исключая гит-мусор и файлы с лицензией/README
+          rsync -av --delete \
+            --exclude='.git' --exclude='.git/*' \
+            --exclude='.github' --exclude='.github/*' \
+            --exclude='README.md' --exclude='LICENSE' --exclude='.DS_Store' \
+            ./ dist/
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y awscli
+
+      # --------- Full sync: upload everything from dist and delete extras in bucket ----------
+      - name: Full sync (upload & delete extras in bucket)
         env:
-          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
-          AWS_REGION: ru-central1
-          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
-          SOURCE_DIR: .
+          AWS_DEFAULT_REGION: ru-central1
+          YC_BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net s3 sync dist s3://$YC_BUCKET \
+            --acl public-read --delete --exact-timestamps --size-only
+
+      # --------- Overwrite cache-control for HTML (short cache) ----------
+      - name: Set cache-control for HTML (5 minutes)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          YC_BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net s3 sync dist s3://$YC_BUCKET \
+            --acl public-read --exact-timestamps --size-only \
+            --exclude '*' --include '*.html' --cache-control 'max-age=300'
+
+      # --------- CSS & JS (1 day) ----------
+      - name: Set cache-control for CSS & JS (1 day)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          YC_BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net s3 sync dist s3://$YC_BUCKET \
+            --acl public-read --exact-timestamps --size-only \
+            --exclude '*' --include '*.css' --include '*.js' --cache-control 'max-age=86400'
+
+      # --------- Images & Video (30 days) ----------
+      - name: Set cache-control for images & videos (30 days)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          YC_BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net s3 sync dist s3://$YC_BUCKET \
+            --acl public-read --exact-timestamps --size-only \
+            --exclude '*' \
+            --include '*.png' --include '*.jpg' --include '*.jpeg' --include '*.gif' --include '*.svg' --include '*.webp' \
+            --include '*.mp4' --include '*.webm' --include '*.mov' --include '*.ogg' \
+            --cache-control 'max-age=2592000'
+
+      # --------- Fonts (30 days) ----------
+      - name: Set cache-control for fonts (30 days)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          YC_BUCKET: ${{ secrets.YC_BUCKET }}
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net s3 sync dist s3://$YC_BUCKET \
+            --acl public-read --exact-timestamps --size-only \
+            --exclude '*' \
+            --include '*.woff' --include '*.woff2' --include '*.ttf' --include '*.otf' \
+            --cache-control 'max-age=2592000'
+
+      # --------- (опционально) purge CDN cache if используешь CDN; раскомментируй и добавь secrets -------
+      # - name: Invalidate CDN cache (optional)
+      #   env:
+      #     YC_OAUTH: ${{ secrets.YC_OAUTH }}
+      #     YC_CDN_ID: ${{ secrets.YC_CDN_ID }}
+      #   run: |
+      #     yc cdn resource purge --id $YC_CDN_ID --path "/*"
