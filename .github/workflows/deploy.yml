@@ -23,4 +23,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
           AWS_REGION: ru-central1
           AWS_ENDPOINT: https://storage.yandexcloud.net
-
