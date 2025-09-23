@@ -35,7 +35,6 @@ jobs:
           --include "*.ogg"
           --include "*.pdf"
           --include "*.txt"
-          --exclude "*"
       env:
         AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
         AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
