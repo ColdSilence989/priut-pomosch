@@ -16,7 +16,7 @@ jobs:
       - name: Sync files 
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --acl public-read --follow-symlinks --delete --exclude "*" --include "*.html" --include "*.css" --include "*.js" --include "*.json" --include "*.png" --include "*.jpg" --include "*.jpeg" --include "*.gif" --include "*.svg" --include "*.webp" --include "*.mp4" --include "*.webm" --include "*.ogg" --include "*.pdf" --include "*.txt" 
+          args: --acl public-read --follow-symlinks --delete --include "*.html" --include "*.css" --include "*.js" --include "*.json" --include "*.png" --include "*.jpg" --include "*.jpeg" --include "*.gif" --include "*.svg" --include "*.webp" --include "*.mp4" --include "*.webm" --include "*.ogg" --include "*.pdf" --include "*.txt" 
         env:
           AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
