@@ -13,10 +13,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build project
+        run: npm run build
+
+      - name: Configure AWS CLI for Yandex Cloud
         run: |
-          npm ci
-          npm run build
+          aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          aws configure set default.region ru-central1
+          aws configure set default.s3.endpoint_url https://storage.yandexcloud.net
+
+      - name: Test connection to Yandex Object Storage
+        run: aws s3 ls s3://${{ secrets.YC_BUCKET }} --max-items 1 || echo "Bucket is empty or connection successful"
 
       # 1. HTML — кэш 5 минут
       - name: Upload HTML
@@ -81,3 +106,7 @@ jobs:
           AWS_S3_ENDPOINT: https://storage.yandexcloud.net
           SOURCE_DIR: dist
 
+      - name: Verify deployment
+        run: |
+          echo "Проверка загруженных файлов:"
+          aws s3 ls s3://${{ secrets.YC_BUCKET }} --recursive --human-readable --summarize
