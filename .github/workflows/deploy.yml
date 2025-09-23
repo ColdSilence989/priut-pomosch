@@ -12,50 +12,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Verify package.json exists
+      - name: List files for verification
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Files in directory:"
+          echo "📁 Files in repository:"
           ls -la
-          if [ ! -f "package.json" ]; then
-            echo "❌ ERROR: package.json not found!"
-            exit 1
-          else
-            echo "✅ package.json found"
-            cat package.json | jq '.dependencies' || echo "package.json content shown"
-          fi
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: |
-          echo "Installing dependencies..."
-          npm install
-          echo "Dependencies installed successfully"
-
-      - name: Build project
-        run: |
-          echo "Building project..."
-          npm run build
-          echo "Build completed"
-          
-          echo "Checking dist directory:"
-          ls -la dist/ || echo "dist directory not found"
+          echo "✅ Repository contains only static files, no build needed"
 
       - name: Install and configure AWS CLI
         run: |
-          # Убедимся что AWS CLI установлен
-          aws --version || echo "AWS CLI not found, installing..."
+          # Устанавливаем AWS CLI
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
           
+          # Настраиваем для Yandex Cloud
           aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_ACCESS_KEY }}
           aws configure set default.region ru-central1
@@ -64,55 +35,41 @@ jobs:
       - name: Test connection to Yandex Object Storage
         run: |
           echo "Testing connection to bucket: ${{ secrets.YC_BUCKET }}"
-          aws s3 ls s3://${{ secrets.YC_BUCKET }} --max-items 1 || echo "Bucket is empty or connection successful"
+          aws s3 ls s3://${{ secrets.YC_BUCKET }} --max-items 1 || echo "Bucket is empty - ready for upload"
 
-      - name: Upload all files with cache optimization
+      - name: Upload HTML files (5 min cache)
         run: |
-          echo "Starting upload to Yandex Object Storage..."
-          
-          # Создаем временный файл для исключений
-          cat > exclude.txt << EOL
-          *.git*
-          *.github*
-          node_modules*
-          *.md
-          *.txt
-          *.log
-          EOL
-          
-          # Синхронизируем всю папку dist с разными настройками кэша
-          aws s3 sync dist/ s3://${{ secrets.YC_BUCKET }} \
+          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
             --acl public-read \
             --delete \
-            --exclude-from exclude.txt \
-            --cache-control "max-age=300" \
-            --include "*.html"
-          
-          aws s3 sync dist/ s3://${{ secrets.YC_BUCKET }} \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "max-age=300"
+
+      - name: Upload CSS and JS files (1 day cache)
+        run: |
+          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
             --acl public-read \
-            --cache-control "max-age=86400" \
-            --include "*.css" --include "*.js"
-          
-          aws s3 sync dist/ s3://${{ secrets.YC_BUCKET }} \
+            --exclude "*" \
+            --include "*.css" --include "*.js" \
+            --cache-control "max-age=86400"
+
+      - name: Upload images and fonts (1 month cache)
+        run: |
+          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
             --acl public-read \
-            --cache-control "max-age=2592000" \
+            --exclude "*" \
             --include "*.png" --include "*.jpg" --include "*.jpeg" --include "*.gif" \
             --include "*.svg" --include "*.webp" \
+            --include "*.woff" --include "*.woff2" --include "*.ttf" --include "*.otf" \
             --include "*.mp4" --include "*.webm" --include "*.ogg" \
-            --include "*.woff" --include "*.woff2" --include "*.ttf" --include "*.otf"
-          
-          echo "Upload completed successfully"
+            --cache-control "max-age=2592000"
 
       - name: Verify deployment
         run: |
-          echo "✅ Deployment verification:"
-          echo "Files uploaded to bucket ${{ secrets.YC_BUCKET }}:"
-          aws s3 ls s3://${{ secrets.YC_BUCKET }} --recursive --human-readable --summarize
-          
-          echo "Public URL: https://storage.yandexcloud.net/${{ secrets.YC_BUCKET }}/index.html"
-
-      - name: Deployment success
-        run: |
-          echo "🚀 Deployment completed successfully!"
-          echo "📦 Bucket: ${{ secrets.YC_BUCKET }}"
-          echo "🌐 URL: https://storage.yandexcloud.net/${{ secrets.YC_BUCKET }}/index.html"
+          echo "✅ Deployment completed!"
+          echo "📊 Uploaded files:"
+          aws s3 ls s3://${{ secrets.YC_BUCKET }} --recursive --human-readable
+          echo ""
+          echo "🌐 Your site is available at:"
+          echo "https://storage.yandexcloud.net/${{ secrets.YC_BUCKET }}/index.html"
