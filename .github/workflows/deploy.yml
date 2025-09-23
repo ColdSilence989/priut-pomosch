@@ -3,7 +3,7 @@ name: Deploy to Yandex Object Storage
 on:
   push:
     branches:
-      - main
+      - main   
 
 jobs:
   deploy:
@@ -13,63 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List files for verification
-        run: |
-          echo "📁 Files in repository:"
-          ls -la
-          echo "✅ Repository contains only static files, no build needed"
-
-      - name: Install and configure AWS CLI
-        run: |
-          # Устанавливаем AWS CLI
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-          
-          # Настраиваем для Yandex Cloud
-          aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_ACCESS_KEY }}
-          aws configure set default.region ru-central1
-          aws configure set default.s3.endpoint_url https://storage.yandexcloud.net
-
-      - name: Test connection to Yandex Object Storage
-        run: |
-          echo "Testing connection to bucket: ${{ secrets.YC_BUCKET }}"
-          aws s3 ls s3://${{ secrets.YC_BUCKET }} --max-items 1 || echo "Bucket is empty - ready for upload"
-
-      - name: Upload HTML files (5 min cache)
-        run: |
-          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
-            --acl public-read \
-            --delete \
-            --exclude "*" \
-            --include "*.html" \
-            --cache-control "max-age=300"
-
-      - name: Upload CSS and JS files (1 day cache)
-        run: |
-          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
-            --acl public-read \
-            --exclude "*" \
-            --include "*.css" --include "*.js" \
-            --cache-control "max-age=86400"
-
-      - name: Upload images and fonts (1 month cache)
-        run: |
-          aws s3 sync ./ s3://${{ secrets.YC_BUCKET }} \
-            --acl public-read \
-            --exclude "*" \
-            --include "*.png" --include "*.jpg" --include "*.jpeg" --include "*.gif" \
-            --include "*.svg" --include "*.webp" \
-            --include "*.woff" --include "*.woff2" --include "*.ttf" --include "*.otf" \
-            --include "*.mp4" --include "*.webm" --include "*.ogg" \
-            --cache-control "max-age=2592000"
-
-      - name: Verify deployment
-        run: |
-          echo "✅ Deployment completed!"
-          echo "📊 Uploaded files:"
-          aws s3 ls s3://${{ secrets.YC_BUCKET }} --recursive --human-readable
-          echo ""
-          echo "🌐 Your site is available at:"
-          echo "https://storage.yandexcloud.net/${{ secrets.YC_BUCKET }}/index.html"
+      - name: Deploy to Yandex Object Storage
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --delete --exclude ".git/*" --exclude ".github/*" --exclude "LICENSE" --exclude "README.md"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: ru-central1
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          SOURCE_DIR: .
