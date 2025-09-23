@@ -16,7 +16,7 @@ jobs:
     - name: Sync files
       uses: jakejarvis/s3-sync-action@master
       with:
-        args: --acl public-read --follow-symlinks --delete
+  args: --acl public-read --follow-symlinks --delete ./ s3://priut-pomosch --exclude ".git/*" --exclude ".github/*" --exclude "README.md" --exclude "LICENSE" --exclude "CONTENT_LICENSE"
       env:
         AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
         AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
