@@ -1,4 +1,4 @@
-/* ===== Общий фон ===== */
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -6,27 +6,27 @@ body {
   min-height: 100vh;
 }
 
-/* ===== Шапка ===== */
+
 header {
   width: 100%;
-  background: rgba(0, 0, 0, 0.5); /* затемнение для контраста */
+  background: rgba(0, 0, 0, 0.5); 
   padding: 15px 0;
-  position: fixed; /* всегда сверху */
+  position: fixed; 
   top: 0;
   left: 0;
   z-index: 1000;
 }
 
-/* ===== Навигация ===== */
+
 .navbar {
   display: flex;
-  justify-content: space-around; /* равномерно распределяет кнопки */
+  justify-content: space-around; 
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ===== Кнопки ===== */
+
 .btn {
   position: relative;
   padding: 12px 25px;
@@ -40,7 +40,7 @@ header {
   transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
 }
 
-/* ===== Эффект при наведении ===== */
+
 .btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 15px rgba(0,0,0,0.3);
@@ -48,7 +48,7 @@ header {
   color: #000;
 }
 
-/* ===== Подсказки ===== */
+
 .btn::after {
   content: attr(data-tooltip);
   position: absolute;
