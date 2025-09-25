@@ -1,4 +1,22 @@
 body {
+  margin: 0;
+  font-family: Arial, sans-serif;
   background: url("walpaper.jpg") no-repeat center center/cover;
+  background-attachment: fixed; /* фон закреплён, красиво при скролле */
 }
 
+header {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6); /* лёгкий фон под кнопками */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+main {
+  padding: 40px;
+  color: #333;
+}
