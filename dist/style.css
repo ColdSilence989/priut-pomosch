@@ -1,56 +1,58 @@
-
 /* ===== Общий фон ===== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: url("walpaper.jpg") no-repeat center center/cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  text-align: center;
+  min-height: 100vh;
 }
 
-/* ===== Контейнер кнопок ===== */
-.btn-group {
+/* ===== Шапка ===== */
+header {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5); /* затемнение для контраста */
+  padding: 15px 0;
+  position: fixed; /* всегда сверху */
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* ===== Навигация ===== */
+.navbar {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  max-width: 800px;
+  justify-content: space-around; /* равномерно распределяет кнопки */
+  align-items: center;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 /* ===== Кнопки ===== */
 .btn {
   position: relative;
-  display: inline-block;
-  padding: 15px 35px;
-  font-size: 1.1rem;
+  padding: 12px 25px;
+  font-size: 1rem;
   font-weight: bold;
   text-decoration: none;
   color: #333;
   background: #FDD65A;
   border-radius: 50px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transition: transform 0.25s, box-shadow 0.25s, text-shadow 0.25s, color 0.25s, background 0.25s;
+  transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
 }
 
 /* ===== Эффект при наведении ===== */
 .btn:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
   background: #ffe16e;
   color: #000;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
-               0 0 12px rgba(255, 255, 255, 0.7);
 }
 
-/* ===== Подсказка ===== */
+/* ===== Подсказки ===== */
 .btn::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: -45px;
+  top: 120%; /* вниз от кнопки */
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.8);
@@ -64,22 +66,20 @@ body {
   transition: opacity 0.3s, transform 0.3s;
 }
 
-/* ===== Треугольничек под подсказкой ===== */
 .btn::before {
   content: "";
   position: absolute;
-  bottom: -10px;
+  top: 105%;
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.8);
+  border-bottom-color: rgba(0, 0, 0, 0.8);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-/* ===== Активация при наведении ===== */
 .btn:hover::after,
 .btn:hover::before {
   opacity: 1;
-  transform: translateX(-50%) translateY(-3px);
+  transform: translateX(-50%) translateY(3px);
 }
