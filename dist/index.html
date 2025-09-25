@@ -3,49 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Главная страница</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: url("walpaper.jpg") no-repeat center center/cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .btn {
-      display: inline-block;
-      margin: 15px;
-      padding: 15px 35px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-decoration: none;
-      color: #333;
-      background: #FDD65A;
-      border-radius: 50px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      transition: transform 0.25s, box-shadow 0.25s, text-shadow 0.25s, color 0.25s, background 0.25s;
-    }
-
-    .btn:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.35);
-      background: #ffe16e;
-      color: #000;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
-                   0 0 12px rgba(255, 255, 255, 0.7);
-    }
-  </style>
+  <!-- Подключаем общий стиль -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <a href="#" class="btn">Главная</a>
-  <a href="#" class="btn">Наши животные</a>
-  <a href="#" class="btn">Как помочь</a>
-  <a href="#" class="btn">Счастливые истории</a>
-  <a href="#" class="btn">Контакты</a>
-  <a href="#" class="btn">О нас</a>
-  >
+  <div class="btn-group">
+    <a href="#" class="btn">Главная</a>
+    <a href="#" class="btn">Наши животные</a>
+    <a href="#" class="btn">Как помочь</a>
+    <a href="#" class="btn">Счастливые истории</a>
+    <a href="#" class="btn">Контакты</a>
+    <a href="#" class="btn">О нас</a>
+  </div>
 </body>
 </html>
 
