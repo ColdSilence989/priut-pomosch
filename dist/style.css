@@ -1,15 +1,28 @@
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background: url("walpaper.jpg") no-repeat center center/cover;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  text-align: center;
 }
+
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 
 .btn {
   display: inline-block;
-  margin: 15px;
   padding: 15px 35px;
   font-size: 1.1rem;
   font-weight: bold;
@@ -20,6 +33,7 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: transform 0.25s, box-shadow 0.25s, text-shadow 0.25s, color 0.25s, background 0.25s;
 }
+
 
 .btn:hover {
   transform: translateY(-5px);
