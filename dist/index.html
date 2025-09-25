@@ -3,18 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Главная страница</title>
+
+  <!-- Общие стили -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Стили для кнопок -->
+  <link rel="stylesheet" href="buttons.css">
+
+  <!-- Фон (wallpaper) -->
+  <link rel="stylesheet" href="walpaper.css">
+
+  <!-- Мобильные стили -->
+  <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
 </head>
 <body>
-  <header>
-    <nav class="navbar">
-      <a href="#" class="btn" data-tooltip="О приюте и его миссии">Главная</a>
-      <a href="#" class="btn" data-tooltip="Фотографии собак и их описания">Наши животные</a>
-      <a href="#" class="btn" data-tooltip="Реквизиты для помощи приюту">Как помочь</a>
-      <a href="#" class="btn" data-tooltip="Истории собак, нашедших дом">Счастливые истории</a>
-      <a href="#" class="btn" data-tooltip="Официальные данные">О нас</a>
-      <a href="#" class="btn" data-tooltip="Адрес, контакты и соцсети">Контакты</a>
-    </nav>
-  </header>
+  <nav class="navbar">
+    <a href="#" class="btn" data-info="О приюте и его миссии">Главная</a>
+    <a href="#" class="btn" data-info="Фотографии и описания животных">Наши животные</a>
+    <a href="#" class="btn" data-info="Реквизиты для помощи приюту">Как помочь</a>
+    <a href="#" class="btn" data-info="Истории собак, нашедших дом">Счастливые истории</a>
+    <a href="#" class="btn" data-info="Официальные данные и юр. адрес">О нас</a>
+    <a href="#" class="btn" data-info="Адрес, соцсети и контакты">Контакты</a>
+  </nav>
 </body>
 </html>
